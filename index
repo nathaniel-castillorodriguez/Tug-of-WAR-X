@@ -1,1 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tug of WAR-X</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
 
+:root {
+  --bg: #fff8f0;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --accent1: #ff6b6b;
+  --accent2: #6c63ff;
+  --grass: #4ecb71;
+  --shadow: rgba(0,0,0,0.12);
+  --rope-brown: #8B4513;
+  --rope-tan: #D2691E;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 15%, #ffe0e044 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, #e0e0ff44 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, #fff3e044 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen {
+  display: none;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+.screen.active { display: flex; }
+
+/* ===== TYPOGRAPHY ===== */
+.title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 400px;
+  border: 2px solid rgba(255,255,255,0.9);
+}
+
+/* ===== INPUTS ===== */
+.input-group { margin-bottom: 14px; }
+.input-group label {
+  display: block;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2.5px solid #e5e7eb;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  background: #f9fafb;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input[type="text"]:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+  background: white;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.02em;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color: white;
+  box-shadow: 0 4px 16px rgba(108,99,255,0.35);
+  margin-top: 8px;
+}
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(108,99,255,0.45); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+  margin-top: 8px;
+}
+
+.btn-small {
+  width: auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 12px;
+}
+
+/* ===== LOBBY ===== */
+#lobbyScreen { gap: 12px; }
+
+.divider {
+  font-weight: 800;
+  color: #d1d5db;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+/* ===== BREED PICKER ===== */
+#pickerScreen { justify-content: flex-start; padding-top: 24px; }
+
+.picker-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.picker-subtitle {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.breed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+}
+
+.breed-card {
+  background: white;
+  border: 3px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.breed-card:active { transform: scale(0.96); }
+.breed-card.selected {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.2), 0 4px 16px rgba(108,99,255,0.2);
+  background: #f5f3ff;
+}
+
+.breed-card svg {
+  width: 70px;
+  height: 70px;
+}
+
+.breed-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-align: center;
+}
+
+/* ===== WAITING ===== */
+.room-code {
+  font-family: 'Fredoka One', cursive;
+  font-size: 3rem;
+  letter-spacing: 0.2em;
+  color: var(--accent2);
+  text-align: center;
+  background: #f5f3ff;
+  padding: 16px 28px;
+  border-radius: 18px;
+  border: 3px dashed var(--accent2);
+  margin: 16px 0;
+}
+
+.pulse { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.9)} }
+
+.dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* ===== COUNTDOWN ===== */
+#countdownScreen { background: linear-gradient(135deg, #667eea22, #764ba222); }
+
+.count-num {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(6rem, 25vw, 11rem);
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: countIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes countIn {
+  0% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.go-txt {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(4rem, 18vw, 8rem);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: goIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes goIn {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* ===== GAME SCREEN ===== */
+#gameScreen {
+  padding: 0;
+  justify-content: flex-start;
+  gap: 0;
+}
+
+.game-header {
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.player-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 80px;
+}
+
+.hud-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+}
+
+.hud-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.95rem;
+  color: var(--text);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-score {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+}
+
+.score-left { color: var(--accent1); }
+.score-right { color: var(--accent2); }
+
+/* Arena */
+.arena {
+  width: 100%;
+  padding: 10px 16px 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Cat characters on rope */
+.rope-scene {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.cat-left-wrap, .cat-right-wrap {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  transition: left 0.35s cubic-bezier(0.34,1.56,0.64,1), right 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.cat-left-wrap { left: 0; }
+.cat-right-wrap { right: 0; }
+
+.cat-left-wrap svg { width: 70px; height: 90px; }
+.cat-right-wrap svg { width: 70px; height: 90px; transform: scaleX(-1); }
+
+/* Pulling animation */
+@keyframes tugLeft {
+  0% { transform: translateX(0) rotate(0deg); }
+  30% { transform: translateX(-12px) rotate(-8deg); }
+  60% { transform: translateX(-6px) rotate(-4deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+@keyframes tugRight {
+  0% { transform: scaleX(-1) translateX(0) rotate(0deg); }
+  30% { transform: scaleX(-1) translateX(-12px) rotate(-8deg); }
+  60% { transform: scaleX(-1) translateX(-6px) rotate(-4deg); }
+  100% { transform: scaleX(-1) translateX(0) rotate(0deg); }
+}
+
+.tug-left { animation: tugLeft 0.5s ease-out; }
+.tug-right svg { animation: tugRight 0.5s ease-out; }
+
+/* Rope track */
+.rope-track-wrap {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.rope-track {
+  width: 100%;
+  height: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  overflow: hidden;
+  position: relative;
+}
+
+.rope-fill {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rope-brown) 0px, var(--rope-brown) 8px,
+    var(--rope-tan) 8px, var(--rope-tan) 14px
+  );
+  border-radius: 8px;
+  transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.rope-center {
+  position: absolute;
+  left: 50%; top: -5px; bottom: -5px;
+  width: 3px;
+  background: #ef4444;
+  transform: translateX(-50%);
+  z-index: 4;
+  border-radius: 2px;
+}
+
+.rope-center::after {
+  content: '🔴';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+}
+
+.rope-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-top: 4px;
+}
+.rope-labels span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Question area */
+.question-area {
+  width: 100%;
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Timer */
+.timer-wrap {
+  position: relative;
+  width: 60px; height: 60px;
+  flex-shrink: 0;
+}
+.timer-svg { transform: rotate(-90deg); }
+.timer-bg { fill: none; stroke: #e5e7eb; stroke-width: 5; }
+.timer-arc {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 157;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+}
+.timer-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+/* Question */
+.question-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2.2rem, 9vw, 3.5rem);
+  color: var(--text);
+  text-align: center;
+  line-height: 1;
+}
+
+/* Multiple choice */
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.choice-btn {
+  padding: 18px 12px;
+  border: 3px solid #e5e7eb;
+  border-radius: 16px;
+  background: white;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.6rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  text-align: center;
+}
+.choice-btn:active { transform: scale(0.95); }
+.choice-btn:hover { border-color: var(--accent2); box-shadow: 0 4px 16px rgba(108,99,255,0.2); }
+
+.choice-btn.correct {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #16a34a;
+}
+.choice-btn.wrong {
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #dc2626;
+}
+.choice-btn.reveal-correct {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #16a34a;
+}
+.choice-btn:disabled { cursor: default; }
+
+/* Feedback */
+.feedback-popup {
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-family: 'Fredoka One', cursive;
+  font-size: 2rem;
+  padding: 14px 28px;
+  border-radius: 18px;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+  white-space: nowrap;
+}
+.feedback-popup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.feedback-popup.correct { background: #dcfce7; color: #16a34a; border: 3px solid #22c55e; }
+.feedback-popup.wrong { background: #fee2e2; color: #dc2626; border: 3px solid #ef4444; }
+.feedback-popup.timeout { background: #fef3c7; color: #d97706; border: 3px solid #f59e0b; }
+
+/* ===== RESULT SCREEN ===== */
+#resultScreen { gap: 12px; }
+
+.result-cats {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  margin: 8px 0;
+}
+
+.result-cat-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.result-cat-wrap svg { width: 90px; height: 110px; }
+
+.winner-cat { animation: jig 0.5s ease-in-out infinite alternate; }
+@keyframes jig {
+  0% { transform: translateY(0) rotate(-8deg) scale(1.05); }
+  100% { transform: translateY(-14px) rotate(8deg) scale(1.1); }
+}
+
+.loser-cat { animation: sadDroop 1s ease-in-out infinite alternate; }
+@keyframes sadDroop {
+  0% { transform: translateY(0) rotate(-3deg); }
+  100% { transform: translateY(4px) rotate(3deg); }
+}
+
+.result-label {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.winner-label { color: #16a34a; }
+.loser-label { color: #9ca3af; }
+
+.result-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem, 8vw, 3rem);
+  text-align: center;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.result-scores {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.result-score-card {
+  flex: 1;
+  background: white;
+  border-radius: 18px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+.result-score-card .sc-name { font-weight: 800; font-size: 0.8rem; color: #6b7280; margin-bottom: 2px; }
+.result-score-card .sc-val { font-family: 'Fredoka One', cursive; font-size: 2.2rem; }
+
+/* Confetti */
+.confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.cp {
+  position: absolute;
+  border-radius: 3px;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* Copy btn */
+.copy-btn {
+  width: 100%;
+  padding: 10px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text);
+  margin-top: 6px;
+  transition: background 0.2s;
+}
+.copy-btn:hover { background: #e5e7eb; }
+
+.waiting-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.pill-wait { background: #fef3c7; color: #d97706; }
+.pill-ready { background: #dcfce7; color: #16a34a; }
+
+/* ===== SVG CATS ===== */
+/* All cats are SVG inline components rendered via JS */
+</style>
+</head>
+<body>
+
+<div class="feedback-popup" id="feedbackPopup"></div>
+
+<!-- ===== LOBBY ===== -->
+<div class="screen active" id="lobbyScreen">
+  <div class="title">Tug of WAR-X</div>
+  <div class="subtitle">Math duels. Real cats. No mercy.</div>
+
+  <div class="card">
+    <div class="input-group">
+      <label>Your Name</label>
+      <input type="text" id="createName" placeholder="e.g. Nathaniel" maxlength="14">
+    </div>
+    <button class="btn btn-primary" onclick="createRoom()">Create Room →</button>
+  </div>
+
+  <div class="divider">— or join —</div>
+
+  <div class="card">
+    <div class="input-group">
+      <label>Your Name</label>
+      <input type="text" id="joinName" placeholder="e.g. Opponent" maxlength="14">
+    </div>
+    <div class="input-group">
+      <label>Room Code</label>
+      <input type="text" id="joinCode" placeholder="ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:0.18em;font-size:1.3rem;text-align:center;">
+    </div>
+    <button class="btn btn-secondary" onclick="joinRoom()">Join Room →</button>
+  </div>
+</div>
+
+<!-- ===== BREED PICKER ===== -->
+<div class="screen" id="pickerScreen">
+  <div class="picker-title">Pick Your Fighter 🐾</div>
+  <div class="picker-subtitle" id="pickerSubtitle">Choose your cat breed</div>
+
+  <div class="breed-grid" id="breedGrid"></div>
+
+  <div style="width:100%;max-width:400px;">
+    <button class="btn btn-primary" id="readyBtn" onclick="confirmBreed()" disabled>I'm Ready! →</button>
+  </div>
+
+  <div id="waitingForOpp" style="display:none;margin-top:12px;" class="waiting-row">
+    <span class="dot pulse"></span> Waiting for opponent to pick...
+  </div>
+</div>
+
+<!-- ===== WAITING FOR PLAYER 2 ===== -->
+<div class="screen" id="waitingScreen">
+  <div class="title" style="font-size:1.8rem;">Waiting for Opponent</div>
+  <div class="card" style="margin-top:16px;text-align:center;">
+    <p style="font-weight:700;color:#9ca3af;font-size:0.85rem;margin-bottom:4px;">ROOM CODE</p>
+    <div class="room-code" id="displayRoomCode">------</div>
+    <button class="copy-btn" onclick="copyCode()">📋 Copy & Share Code</button>
+    <div class="waiting-row" style="margin-top:14px;">
+      <span class="dot pulse"></span> Waiting for player 2...
+    </div>
+    <p style="font-size:0.8rem;color:#9ca3af;font-weight:700;margin-top:6px;">Share the code with your friend!</p>
+  </div>
+</div>
+
+<!-- ===== COUNTDOWN ===== -->
+<div class="screen" id="countdownScreen">
+  <div id="countDisplay" class="count-num">3</div>
+</div>
+
+<!-- ===== GAME ===== -->
+<div class="screen" id="gameScreen">
+  <div class="game-header">
+    <div class="player-hud">
+      <span class="hud-label">You</span>
+      <span class="hud-name" id="myNameHud">-</span>
+      <span class="hud-score score-left" id="myScoreHud">0</span>
+    </div>
+    <div style="font-family:'Fredoka One',cursive;color:#d1d5db;font-size:1.1rem;">VS</div>
+    <div class="player-hud" style="align-items:flex-end;">
+      <span class="hud-label">Them</span>
+      <span class="hud-name" id="oppNameHud">-</span>
+      <span class="hud-score score-right" id="oppScoreHud">0</span>
+    </div>
+  </div>
+
+  <div class="arena">
+    <div class="rope-scene">
+      <!-- Left cat -->
+      <div class="cat-left-wrap" id="catLeftWrap">
+        <div id="catLeftSvg"></div>
+      </div>
+      <!-- Rope -->
+      <div class="rope-track-wrap">
+        <div class="rope-track">
+          <div class="rope-fill" id="ropeFill" style="width:50%"></div>
+          <div class="rope-center"></div>
+        </div>
+      </div>
+      <!-- Right cat -->
+      <div class="cat-right-wrap" id="catRightWrap">
+        <div id="catRightSvg"></div>
+      </div>
+    </div>
+    <div class="rope-labels">
+      <span id="leftLabel">← Your side</span>
+      <span id="rightLabel">Their side →</span>
+    </div>
+  </div>
+
+  <div class="question-area">
+    <div class="timer-wrap">
+      <svg class="timer-svg" width="60" height="60" viewBox="0 0 60 60">
+        <circle class="timer-bg" cx="30" cy="30" r="25"/>
+        <circle class="timer-arc" id="timerArc" cx="30" cy="30" r="25"/>
+      </svg>
+      <div class="timer-num" id="timerNum">5</div>
+    </div>
+
+    <div class="question-text" id="questionText">? × ? = ?</div>
+
+    <div class="choices-grid" id="choicesGrid">
+      <button class="choice-btn" onclick="pickAnswer(0)">?</button>
+      <button class="choice-btn" onclick="pickAnswer(1)">?</button>
+      <button class="choice-btn" onclick="pickAnswer(2)">?</button>
+      <button class="choice-btn" onclick="pickAnswer(3)">?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div class="screen" id="resultScreen">
+  <div class="confetti-container" id="confettiEl"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;">
+    <div class="result-cats">
+      <div class="result-cat-wrap" id="resCatLeft">
+        <div id="resCatLeftSvg"></div>
+        <div class="result-label" id="resCatLeftLabel"></div>
+      </div>
+      <div class="result-cat-wrap" id="resCatRight">
+        <div id="resCatRightSvg"></div>
+        <div class="result-label" id="resCatRightLabel"></div>
+      </div>
+    </div>
+
+    <div class="result-title" id="resultTitle">You Win!</div>
+    <p id="resultSub" style="color:#6b7280;font-weight:700;font-size:0.9rem;text-align:center;"></p>
+
+    <div class="result-scores" style="padding:0 16px;">
+      <div class="result-score-card">
+        <div class="sc-name" id="resSc1Name">P1</div>
+        <div class="sc-val score-left" id="resSc1Val">0</div>
+      </div>
+      <div class="result-score-card">
+        <div class="sc-name" id="resSc2Name">P2</div>
+        <div class="sc-val score-right" id="resSc2Val">0</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="max-width:360px;width:90%;" onclick="rematch()">Rematch 🔄</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAU3QKvOgLzaBOIFeyfZQOm82yyHkztU5c",
+  authDomain: "tug-of-war-4ce2f.firebaseapp.com",
+  projectId: "tug-of-war-4ce2f",
+  storageBucket: "tug-of-war-4ce2f.firebasestorage.app",
+  messagingSenderId: "126252121877",
+  appId: "1:126252121877:web:579ea3c440f3a5e1d5731c",
+  databaseURL: "https://tug-of-war-4ce2f-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ===== BREEDS =====
+const BREEDS = [
+  { id: 'tabby', name: 'Orange Tabby' },
+  { id: 'siamese', name: 'Siamese' },
+  { id: 'bengal', name: 'Bengal' },
+  { id: 'mainecoon', name: 'Maine Coon' },
+  { id: 'tuxedo', name: 'Tuxedo' },
+  { id: 'sphynx', name: 'Sphynx' },
+  { id: 'saiki', name: 'Saiki' },
+  { id: 'jdawg', name: 'J Dawg' },
+];
+
+function getCatSVG(id, mood = 'normal') {
+  // mood: normal | sad | happy
+  const eye = mood === 'sad' ? `<ellipse cx="0" cy="2" rx="3" ry="2" fill="#333"/>
+    <line x1="-4" y1="-3" x2="-1" y2="0" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="4" y1="-3" x2="1" y2="0" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>`
+    : mood === 'happy' ? `<ellipse cx="0" cy="0" rx="3" ry="3.5" fill="#333"/>
+    <ellipse cx="0" cy="-0.5" rx="1.5" ry="2" fill="#5c35a0" opacity="0.4"/>
+    <line x1="-4" y1="1" x2="-1" y2="-1" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="4" y1="1" x2="1" y2="-1" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>`
+    : `<ellipse cx="0" cy="0" rx="3" ry="3.5" fill="#333"/>
+    <ellipse cx="0" cy="-0.5" rx="1.5" ry="2" fill="#5c35a0" opacity="0.4"/>`;
+
+  const mouth = mood === 'sad'
+    ? `<path d="M-5 5 Q0 3 5 5" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+    : `<path d="M-5 3 Q0 7 5 3" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+
+  const whiskers = `
+    <line x1="-22" y1="2" x2="-8" y2="2" stroke="#999" stroke-width="1" opacity="0.7"/>
+    <line x1="-22" y1="5" x2="-8" y2="4" stroke="#999" stroke-width="1" opacity="0.7"/>
+    <line x1="8" y1="2" x2="22" y2="2" stroke="#999" stroke-width="1" opacity="0.7"/>
+    <line x1="8" y1="4" x2="22" y2="5" stroke="#999" stroke-width="1" opacity="0.7"/>`;
+
+  // Paw holding rope
+  const paw = `<ellipse cx="35" cy="52" rx="10" ry="7" fill="currentColor" opacity="0.85"/>
+    <ellipse cx="28" cy="56" rx="5" ry="4" fill="currentColor" opacity="0.85"/>
+    <ellipse cx="42" cy="56" rx="5" ry="4" fill="currentColor" opacity="0.85"/>`;
+
+  const configs = {
+    tabby: {
+      bodyColor: '#E8873A', bodyDark: '#C4621A', earInner: '#FFB380',
+      stripes: true, fluffLevel: 0, hasPattern: true,
+      patternColor: '#C4621A',
+    },
+    siamese: {
+      bodyColor: '#F5E6D0', bodyDark: '#8B6914', earInner: '#FFCCAA',
+      stripes: false, fluffLevel: 0, hasPattern: false,
+      faceColor: '#8B6914', pawColor: '#8B6914', tailColor: '#8B6914',
+    },
+    bengal: {
+      bodyColor: '#D4873A', bodyDark: '#8B4513', earInner: '#FFB380',
+      stripes: false, fluffLevel: 0, hasPattern: true, spots: true,
+      patternColor: '#5C2D0A',
+    },
+    mainecoon: {
+      bodyColor: '#C4873A', bodyDark: '#8B5E1A', earInner: '#FFB380',
+      stripes: true, fluffLevel: 3, hasPattern: true,
+      patternColor: '#8B5E1A',
+    },
+    tuxedo: {
+      bodyColor: '#111111', bodyDark: '#000000', earInner: '#FF9999',
+      stripes: false, fluffLevel: 0, hasPattern: false,
+      bellyColor: '#FFFFFF', faceColor: '#FFFFFF',
+    },
+    sphynx: {
+      bodyColor: '#D4A57A', bodyDark: '#B8865A', earInner: '#FF9999',
+      stripes: false, fluffLevel: -1, hasPattern: false, wrinkles: true,
+    },
+    saiki: {
+      bodyColor: '#FFFFFF', bodyDark: '#E8E8E8', earInner: '#FFB3C6',
+      stripes: false, fluffLevel: 4, hasPattern: false,
+    },
+    jdawg: {
+      isChihuahua: true,
+      bodyColor: '#C4873A', bodyDark: '#8B5E1A', earInner: '#FF9999',
+    },
+  };
+
+  const c = configs[id] || configs.tabby;
+
+  if (c.isChihuahua) {
+    return `<svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <ellipse cx="40" cy="68" rx="22" ry="20" fill="${c.bodyColor}"/>
+      <!-- Big ears -->
+      <ellipse cx="16" cy="32" rx="14" ry="20" fill="${c.bodyColor}" transform="rotate(-20,16,32)"/>
+      <ellipse cx="64" cy="32" rx="14" ry="20" fill="${c.bodyColor}" transform="rotate(20,64,32)"/>
+      <ellipse cx="16" cy="32" rx="9" ry="14" fill="${c.earInner}" opacity="0.7" transform="rotate(-20,16,32)"/>
+      <ellipse cx="64" cy="32" rx="9" ry="14" fill="${c.earInner}" opacity="0.7" transform="rotate(20,64,32)"/>
+      <!-- Head -->
+      <ellipse cx="40" cy="44" rx="20" ry="18" fill="${c.bodyColor}"/>
+      <!-- Bug eyes -->
+      <g transform="translate(31,40)">${eye}</g>
+      <g transform="translate(49,40)">${eye}</g>
+      <!-- Nose -->
+      <ellipse cx="40" cy="48" rx="3" ry="2" fill="#333"/>
+      ${mouth}
+      ${whiskers}
+      <!-- Legs -->
+      <rect x="24" y="80" width="9" height="14" rx="4" fill="${c.bodyDark}"/>
+      <rect x="47" y="80" width="9" height="14" rx="4" fill="${c.bodyDark}"/>
+      <!-- Paw/rope arm -->
+      <ellipse cx="62" cy="62" rx="8" ry="6" fill="${c.bodyColor}"/>
+      <!-- Tail -->
+      <path d="M62 75 Q75 65 72 55" stroke="${c.bodyColor}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  // Fur fluff paths
+  const fluffPaths = c.fluffLevel >= 3 ? `
+    <ellipse cx="18" cy="54" rx="8" ry="12" fill="${c.bodyColor}"/>
+    <ellipse cx="62" cy="54" rx="8" ry="12" fill="${c.bodyColor}"/>
+    <ellipse cx="40" cy="42" rx="26" ry="8" fill="${c.bodyColor}"/>
+  ` : c.fluffLevel === -1 ? '' : '';
+
+  const stripesSVG = c.stripes ? `
+    <line x1="32" y1="30" x2="28" y2="20" stroke="${c.patternColor}" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+    <line x1="40" y1="28" x2="40" y2="18" stroke="${c.patternColor}" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+    <line x1="48" y1="30" x2="52" y2="20" stroke="${c.patternColor}" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+    <line x1="25" y1="60" x2="20" y2="50" stroke="${c.patternColor}" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+    <line x1="55" y1="60" x2="60" y2="50" stroke="${c.patternColor}" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+  ` : '';
+
+  const spotsSVG = c.spots ? `
+    <ellipse cx="30" cy="60" rx="5" ry="4" fill="${c.patternColor}" opacity="0.5"/>
+    <ellipse cx="50" cy="58" rx="4" ry="3" fill="${c.patternColor}" opacity="0.5"/>
+    <ellipse cx="40" cy="70" rx="4" ry="3" fill="${c.patternColor}" opacity="0.4"/>
+    <ellipse cx="34" cy="42" rx="3" ry="2" fill="${c.patternColor}" opacity="0.4"/>
+    <ellipse cx="46" cy="44" rx="3" ry="2" fill="${c.patternColor}" opacity="0.4"/>
+  ` : '';
+
+  const bellyColor = c.bellyColor || c.bodyColor;
+  const faceColor = c.faceColor || c.bodyColor;
+
+  const wrinklesSVG = c.wrinkles ? `
+    <line x1="33" y1="36" x2="37" y2="38" stroke="${c.bodyDark}" stroke-width="1" opacity="0.4"/>
+    <line x1="43" y1="36" x2="47" y2="38" stroke="${c.bodyDark}" stroke-width="1" opacity="0.4"/>
+    <line x1="35" y1="50" x2="38" y2="52" stroke="${c.bodyDark}" stroke-width="1" opacity="0.3"/>
+    <line x1="42" y1="52" x2="45" y2="50" stroke="${c.bodyDark}" stroke-width="1" opacity="0.3"/>
+  ` : '';
+
+  const mainecoonRuff = c.fluffLevel >= 3 ? `
+    <ellipse cx="40" cy="50" rx="18" ry="10" fill="${c.bodyColor}" opacity="0.8"/>
+    <path d="M22 50 Q30 40 40 38 Q50 40 58 50" stroke="${c.bodyColor}" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.9"/>
+  ` : '';
+
+  const saikiFluff = c.fluffLevel >= 4 ? `
+    <ellipse cx="40" cy="40" rx="28" ry="22" fill="${c.bodyColor}" opacity="0.6"/>
+    <ellipse cx="20" cy="50" rx="10" ry="14" fill="${c.bodyColor}" opacity="0.7"/>
+    <ellipse cx="60" cy="50" rx="10" ry="14" fill="${c.bodyColor}" opacity="0.7"/>
+  ` : '';
+
+  return `<svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg">
+    ${saikiFluff}
+    <!-- Tail -->
+    <path d="M58 80 Q72 65 68 48" stroke="${c.bodyColor}" stroke-width="6" fill="none" stroke-linecap="round"/>
+    ${c.fluffLevel >= 3 ? `<path d="M58 80 Q72 65 68 48" stroke="${c.bodyDark}" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.3"/>` : ''}
+    <!-- Body -->
+    ${fluffPaths}
+    <ellipse cx="40" cy="70" rx="22" ry="20" fill="${c.bodyColor}"/>
+    <!-- Belly -->
+    <ellipse cx="40" cy="72" rx="13" ry="14" fill="${bellyColor}" opacity="${c.bellyColor ? '1' : '0.4'}"/>
+    ${mainecoonRuff}
+    <!-- Ears -->
+    <polygon points="22,26 14,8 32,20" fill="${c.bodyColor}"/>
+    <polygon points="58,26 66,8 48,20" fill="${c.bodyColor}"/>
+    <polygon points="23,25 17,12 30,21" fill="${c.earInner}" opacity="0.8"/>
+    <polygon points="57,25 63,12 50,21" fill="${c.earInner}" opacity="0.8"/>
+    ${c.fluffLevel >= 3 ? `
+      <polygon points="22,26 12,6 28,22" fill="${c.bodyColor}" opacity="0.6"/>
+      <polygon points="58,26 68,6 52,22" fill="${c.bodyColor}" opacity="0.6"/>
+    ` : ''}
+    <!-- Head -->
+    <ellipse cx="40" cy="42" rx="22" ry="20" fill="${c.bodyColor}"/>
+    ${c.faceColor ? `<ellipse cx="40" cy="45" rx="12" ry="10" fill="${faceColor}" opacity="0.9"/>` : ''}
+    ${wrinklesSVG}
+    ${stripesSVG}
+    ${spotsSVG}
+    <!-- Eyes -->
+    <g transform="translate(31,38)">${eye}</g>
+    <g transform="translate(49,38)">${eye}</g>
+    <!-- Nose -->
+    <polygon points="40,46 37,49 43,49" fill="#FF6B8A"/>
+    <!-- Mouth -->
+    ${mouth}
+    ${whiskers}
+    <!-- Arms/paws holding rope -->
+    <ellipse cx="20" cy="64" rx="8" ry="7" fill="${c.bodyDark}" opacity="0.8"/>
+    <ellipse cx="60" cy="64" rx="8" ry="7" fill="${c.bodyDark}" opacity="0.8"/>
+    <!-- Legs -->
+    <ellipse cx="29" cy="87" rx="8" ry="7" fill="${c.bodyDark}" opacity="0.85"/>
+    <ellipse cx="51" cy="87" rx="8" ry="7" fill="${c.bodyDark}" opacity="0.85"/>
+  </svg>`;
+}
+
+// ===== STATE =====
+let myRole = null;
+let roomCode = null;
+let myName = '';
+let oppName = '';
+let myBreed = null;
+let oppBreed = null;
+let gameRef = null;
+let timerInterval = null;
+let timeLeft = 5;
+let currentQuestion = null;
+let myScore = 0;
+let oppScore = 0;
+let ropePos = 50;
+let answered = false;
+let choices = [];
+let correctIdx = 0;
+let gameListener = null;
+const WIN_THRESHOLD = 15;
+
+// ===== UTILS =====
+function genCode() { return Math.random().toString(36).substring(2,8).toUpperCase(); }
+
+function seededRand(seed) {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+}
+
+function genQuestion(seed) {
+  const a = Math.floor(seededRand(seed) * 9) + 1;
+  const b = Math.floor(seededRand(seed + 100) * 9) + 1;
+  return { a, b, answer: a * b };
+}
+
+function genChoices(correct) {
+  const opts = new Set([correct]);
+  const nearby = [
+    correct + 1, correct - 1, correct + 2, correct - 2,
+    correct + 9, correct - 9, correct + 11, correct - 11,
+    correct + 10, correct - 10, correct * 2, Math.floor(correct * 1.5),
+    correct + 7, correct - 7
+  ].filter(v => v > 0 && v !== correct && v <= 81);
+
+  // Shuffle nearby
+  for (let i = nearby.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [nearby[i], nearby[j]] = [nearby[j], nearby[i]];
+  }
+
+  for (const v of nearby) {
+    if (opts.size >= 4) break;
+    opts.add(v);
+  }
+
+  // Fill if needed
+  while (opts.size < 4) {
+    const r = Math.floor(Math.random() * 80) + 1;
+    opts.add(r);
+  }
+
+  const arr = [...opts];
+  // Shuffle
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 4);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== BUILD BREED PICKER =====
+function buildPicker() {
+  const grid = document.getElementById('breedGrid');
+  grid.innerHTML = '';
+  BREEDS.forEach(breed => {
+    const card = document.createElement('div');
+    card.className = 'breed-card';
+    card.id = `breed-${breed.id}`;
+    card.innerHTML = `
+      ${getCatSVG(breed.id, 'normal')}
+      <div class="breed-name">${breed.name}</div>
+    `;
+    card.onclick = () => selectBreed(breed.id);
+    grid.appendChild(card);
+  });
+}
+
+function selectBreed(id) {
+  document.querySelectorAll('.breed-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`breed-${id}`).classList.add('selected');
+  myBreed = id;
+  document.getElementById('readyBtn').disabled = false;
+}
+
+// ===== LOBBY =====
+window.createRoom = async function() {
+  const name = document.getElementById('createName').value.trim();
+  if (!name) { alert('Enter your name!'); return; }
+  myName = name;
+  myRole = 'p1';
+  roomCode = genCode();
+
+  const state = {
+    p1: { name, score: 0, breed: null, ready: false },
+    p2: { name: '', score: 0, breed: null, ready: false },
+    ropePosition: 50,
+    status: 'waiting',
+    questionSeed: Math.floor(Math.random() * 9999),
+    currentQuestion: 0,
+    createdAt: Date.now()
+  };
+
+  gameRef = ref(db, `games/${roomCode}`);
+  await set(gameRef, state);
+  document.getElementById('displayRoomCode').textContent = roomCode;
+  showScreen('waitingScreen');
+  listenForP2();
+};
+
+window.joinRoom = async function() {
+  const name = document.getElementById('joinName').value.trim();
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if (!name) { alert('Enter your name!'); return; }
+  if (code.length !== 6) { alert('Enter a valid 6-digit code!'); return; }
+
+  myName = name;
+  myRole = 'p2';
+  roomCode = code;
+  gameRef = ref(db, `games/${roomCode}`);
+
+  const snap = await get(gameRef);
+  if (!snap.exists()) { alert('Room not found!'); return; }
+  const data = snap.val();
+  if (data.status !== 'waiting') { alert('Game already started!'); return; }
+
+  oppName = data.p1.name;
+  await update(gameRef, { 'p2/name': name, status: 'picking' });
+
+  buildPicker();
+  document.getElementById('pickerSubtitle').textContent = `You vs ${oppName} — Pick your fighter`;
+  showScreen('pickerScreen');
+  listenForGameState();
+};
+
+window.copyCode = function() {
+  navigator.clipboard.writeText(roomCode).then(() => {
+    const b = document.querySelector('.copy-btn');
+    b.textContent = '✅ Copied!';
+    setTimeout(() => b.textContent = '📋 Copy & Share Code', 2000);
+  });
+};
+
+function listenForP2() {
+  onValue(gameRef, snap => {
+    const d = snap.val();
+    if (!d) return;
+    if (d.status === 'picking' && myRole === 'p1') {
+      oppName = d.p2.name;
+      off(gameRef);
+      buildPicker();
+      document.getElementById('pickerSubtitle').textContent = `You vs ${oppName} — Pick your fighter`;
+      showScreen('pickerScreen');
+      listenForGameState();
+    }
+  });
+}
+
+// ===== BREED CONFIRM =====
+window.confirmBreed = async function() {
+  if (!myBreed) return;
+  document.getElementById('readyBtn').disabled = true;
+  document.getElementById('waitingForOpp').style.display = 'flex';
+
+  await update(gameRef, {
+    [`${myRole}/breed`]: myBreed,
+    [`${myRole}/ready`]: true,
+  });
+
+  // Check if both ready
+  const snap = await get(gameRef);
+  const d = snap.val();
+  if (d.p1.ready && d.p2.ready) {
+    await update(gameRef, { status: 'countdown' });
+  }
+};
+
+// ===== GAME STATE LISTENER =====
+function listenForGameState() {
+  if (gameListener) off(gameRef);
+  gameListener = onValue(gameRef, snap => {
+    const d = snap.val();
+    if (!d) return;
+
+    if (d.status === 'countdown') {
+      off(gameRef);
+      oppBreed = myRole === 'p1' ? d.p2.breed : d.p1.breed;
+      myBreed = myBreed || (myRole === 'p1' ? d.p1.breed : d.p2.breed);
+      showScreen('countdownScreen');
+      startCountdown(d);
+      return;
+    }
+
+    if (d.status === 'playing') {
+      const oppRole = myRole === 'p1' ? 'p2' : 'p1';
+      oppScore = d[oppRole].score || 0;
+      myScore = d[myRole].score || 0;
+      ropePos = d.ropePosition || 50;
+      updateScoreUI();
+      updateRopeUI();
+    }
+
+    if (d.status === 'gameover') {
+      clearInterval(timerInterval);
+      showResult(d);
+    }
+  });
+}
+
+// ===== COUNTDOWN =====
+function startCountdown(data) {
+  let n = 3;
+  const el = document.getElementById('countDisplay');
+
+  function tick() {
+    if (n > 0) {
+      el.className = 'count-num';
+      el.textContent = n;
+      void el.offsetWidth;
+      n--;
+      setTimeout(tick, 900);
+    } else {
+      el.className = 'go-txt';
+      el.textContent = 'GO!';
+      setTimeout(async () => {
+        await update(gameRef, { status: 'playing' });
+        setupGameUI();
+        showScreen('gameScreen');
+        listenForGameState();
+        startQuestion(data);
+      }, 700);
+    }
+  }
+  tick();
+}
+
+// ===== GAME UI SETUP =====
+function setupGameUI() {
+  document.getElementById('myNameHud').textContent = myName;
+  document.getElementById('oppNameHud').textContent = oppName;
+
+  // Left = p1 (cat), right = p2 (cat)
+  const leftBreed = myRole === 'p1' ? myBreed : oppBreed;
+  const rightBreed = myRole === 'p1' ? oppBreed : myBreed;
+
+  document.getElementById('catLeftSvg').innerHTML = getCatSVG(leftBreed || 'tabby', 'normal');
+  document.getElementById('catRightSvg').innerHTML = getCatSVG(rightBreed || 'siamese', 'normal');
+
+  const leftName = myRole === 'p1' ? myName : oppName;
+  const rightName = myRole === 'p1' ? oppName : myName;
+  document.getElementById('leftLabel').textContent = `← ${leftName}`;
+  document.getElementById('rightLabel').textContent = `${rightName} →`;
+}
+
+// ===== QUESTION =====
+async function startQuestion(dataOverride) {
+  answered = false;
+  timeLeft = 5;
+
+  const snap = dataOverride || (await get(gameRef)).val();
+  const d = typeof snap.val === 'function' ? snap.val() : snap;
+
+  const qIdx = d.currentQuestion || 0;
+  const seed = d.questionSeed || 0;
+  currentQuestion = genQuestion(seed + qIdx * 13);
+
+  document.getElementById('questionText').textContent = `${currentQuestion.a} × ${currentQuestion.b} = ?`;
+
+  choices = genChoices(currentQuestion.answer);
+  correctIdx = choices.indexOf(currentQuestion.answer);
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach((b, i) => {
+    b.textContent = choices[i];
+    b.className = 'choice-btn';
+    b.disabled = false;
+  });
+
+  updateTimer(5, 5);
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  const start = Date.now();
+
+  timerInterval = setInterval(() => {
+    timeLeft = Math.max(0, 5 - (Date.now() - start) / 1000);
+    updateTimer(timeLeft, 5);
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) handleTimeout();
+    }
+  }, 50);
+}
+
+function updateTimer(cur, max) {
+  const pct = cur / max;
+  const circ = 157;
+  document.getElementById('timerArc').style.strokeDashoffset = circ * (1 - pct);
+  document.getElementById('timerNum').textContent = Math.ceil(cur);
+  const arc = document.getElementById('timerArc');
+  arc.style.stroke = pct > 0.5 ? '#22c55e' : pct > 0.25 ? '#f59e0b' : '#ef4444';
+}
+
+window.pickAnswer = function(idx) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const picked = choices[idx];
+  const isCorrect = picked === currentQuestion.answer;
+  const speedBonus = isCorrect ? Math.round((timeLeft / 5) * 2) : 0;
+  const delta = isCorrect ? 1 + speedBonus : -2;
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[idx].className = `choice-btn ${isCorrect ? 'correct' : 'wrong'}`;
+  if (!isCorrect) btns[correctIdx].className = 'choice-btn reveal-correct';
+
+  showFeedback(
+    isCorrect ? `+${1 + speedBonus}${speedBonus > 0 ? ' ⚡' : ' ✅'}` : `-2 ❌`,
+    isCorrect ? 'correct' : 'wrong'
+  );
+
+  // Tug animation
+  if (isCorrect) {
+    if (myRole === 'p1') {
+      document.getElementById('catLeftWrap').classList.add('tug-left');
+      setTimeout(() => document.getElementById('catLeftWrap').classList.remove('tug-left'), 500);
+    } else {
+      document.getElementById('catRightWrap').classList.add('tug-right');
+      setTimeout(() => document.getElementById('catRightWrap').classList.remove('tug-right'), 500);
+    }
+  }
+
+  applyScore(delta);
+};
+
+function handleTimeout() {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correctIdx].className = 'choice-btn reveal-correct';
+  showFeedback('Time! -2 ⏰', 'timeout');
+  applyScore(-2);
+}
+
+async function applyScore(delta) {
+  const snap = await get(gameRef);
+  const d = snap.val();
+
+  const newScore = (d[myRole].score || 0) + delta;
+  const ropeDir = myRole === 'p1' ? -1 : 1;
+  const newRope = Math.max(0, Math.min(100, (d.ropePosition || 50) + delta * ropeDir * 5));
+
+  const updates = {};
+  updates[`${myRole}/score`] = newScore;
+  updates['ropePosition'] = newRope;
+
+  let winner = null;
+  if (newRope <= WIN_THRESHOLD) winner = 'p1';
+  if (newRope >= 100 - WIN_THRESHOLD) winner = 'p2';
+
+  if (winner) {
+    updates['status'] = 'gameover';
+    updates['winner'] = winner;
+    await update(gameRef, updates);
+  } else {
+    updates['currentQuestion'] = (d.currentQuestion || 0) + 1;
+    await update(gameRef, updates);
+    setTimeout(() => startQuestion(), 1300);
+  }
+}
+
+function showFeedback(text, type) {
+  const el = document.getElementById('feedbackPopup');
+  el.textContent = text;
+  el.className = `feedback-popup ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 900);
+}
+
+function updateScoreUI() {
+  document.getElementById('myScoreHud').textContent = myScore;
+  document.getElementById('oppScoreHud').textContent = oppScore;
+}
+
+function updateRopeUI() {
+  document.getElementById('ropeFill').style.width = ropePos + '%';
+}
+
+// ===== RESULT =====
+function showResult(data) {
+  clearInterval(timerInterval);
+  const winner = data.winner;
+  const iWon = winner === myRole;
+
+  const p1Breed = data.p1.breed || 'tabby';
+  const p2Breed = data.p2.breed || 'siamese';
+  const myBreedFinal = myRole === 'p1' ? p1Breed : p2Breed;
+  const oppBreedFinal = myRole === 'p1' ? p2Breed : p1Breed;
+
+  const winnerBreed = winner === 'p1' ? p1Breed : p2Breed;
+  const loserBreed = winner === 'p1' ? p2Breed : p1Breed;
+  const winnerName = winner === 'p1' ? data.p1.name : data.p2.name;
+  const loserName = winner === 'p1' ? data.p2.name : data.p1.name;
+
+  // Left = winner, right = loser
+  const leftEl = document.getElementById('resCatLeftSvg');
+  const rightEl = document.getElementById('resCatRightSvg');
+  const leftWrap = document.getElementById('resCatLeft');
+  const rightWrap = document.getElementById('resCatRight');
+
+  leftEl.innerHTML = getCatSVG(winnerBreed, 'happy');
+  rightEl.innerHTML = getCatSVG(loserBreed, 'sad');
+  rightEl.querySelector('svg').style.transform = 'scaleX(-1)';
+
+  leftWrap.querySelector('.result-cat-wrap > div:first-child').className = 'winner-cat';
+  rightWrap.querySelector('.result-cat-wrap > div:first-child').className = 'loser-cat';
+
+  document.getElementById('resCatLeftLabel').innerHTML = `<span class="winner-label">🏆 ${winnerName}</span>`;
+  document.getElementById('resCatRightLabel').innerHTML = `<span class="loser-label">😿 ${loserName}</span>`;
+
+  document.getElementById('resSc1Name').textContent = data.p1.name;
+  document.getElementById('resSc2Name').textContent = data.p2.name;
+  document.getElementById('resSc1Val').textContent = data.p1.score || 0;
+  document.getElementById('resSc2Val').textContent = data.p2.score || 0;
+
+  if (iWon) {
+    document.getElementById('resultTitle').textContent = '🎉 You Win!';
+    document.getElementById('resultSub').textContent = `${oppName} got dragged over the line!`;
+    launchConfetti();
+  } else {
+    document.getElementById('resultTitle').textContent = 'So Close! 😅';
+    document.getElementById('resultTitle').style.background = 'linear-gradient(135deg,#6b7280,#374151)';
+    document.getElementById('resultTitle').style.webkitBackgroundClip = 'text';
+    document.getElementById('resultTitle').style.webkitTextFillColor = 'transparent';
+    document.getElementById('resultSub').textContent = `${winnerName} pulled harder this time!`;
+  }
+
+  showScreen('resultScreen');
+}
+
+function launchConfetti() {
+  const c = document.getElementById('confettiEl');
+  c.innerHTML = '';
+  const cols = ['#ff6b6b','#6c63ff','#ffd93d','#6bcb77','#4d96ff','#ff9ff3','#54a0ff'];
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    p.style.cssText = `
+      left:${Math.random()*100}vw;
+      width:${Math.random()*10+5}px;
+      height:${Math.random()*10+5}px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      animation-duration:${Math.random()*2+2}s;
+      animation-delay:${Math.random()*1.5}s;
+      border-radius:${Math.random() > 0.5 ? '50%' : '3px'};
+    `;
+    c.appendChild(p);
+  }
+}
+
+// ===== REMATCH =====
+window.rematch = async function() {
+  clearInterval(timerInterval);
+  myScore = 0; oppScore = 0; ropePos = 50;
+
+  // Reset game state, keep same players
+  const snap = await get(gameRef);
+  const d = snap.val();
+
+  await update(gameRef, {
+    'p1/score': 0,
+    'p2/score': 0,
+    'p1/breed': null,
+    'p2/breed': null,
+    'p1/ready': false,
+    'p2/ready': false,
+    ropePosition: 50,
+    status: 'picking',
+    questionSeed: Math.floor(Math.random() * 9999),
+    currentQuestion: 0,
+    winner: null,
+  });
+
+  myBreed = null;
+  oppBreed = null;
+  buildPicker();
+  document.getElementById('readyBtn').disabled = true;
+  document.getElementById('waitingForOpp').style.display = 'none';
+  document.querySelectorAll('.breed-card').forEach(c => c.classList.remove('selected'));
+  showScreen('pickerScreen');
+  listenForGameState();
+};
+
+// ===== KEYBOARD =====
+document.getElementById('joinCode').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase();
+});
+
+// Init picker on load for display
+buildPicker();
+</script>
+</body>
+</html>
